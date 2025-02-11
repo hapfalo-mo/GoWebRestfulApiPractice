@@ -49,13 +49,6 @@ func getAnimals(c *gin.Context) {
 }
 func main() {
 	r := gin.Default()
-	// r.GET("/ping", func(c *gin.Context) {
-	// 	c.JSON(200, gin.H{
-	// 		"message": "pong",
-	// 	})
-	// })
-	// ReturnListOfAnima(r)
-	// Get full list of albums
 	r.GET("/getAlbums", getAlbums)
 	r.GET("/getAnimals", getAnimals)
 	r.Run("localhost:8080")
