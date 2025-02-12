@@ -15,6 +15,7 @@ func ReturnListOfAnima(r *gin.Engine) {
 	})
 }
 
+// ------- Create a struct for album and animal---------
 type album struct {
 	ID     string  `json:"id"`
 	Title  string  `json:"title"`
@@ -42,6 +43,7 @@ var animals = []animal{
 	{ID: 3, Name: "Bird", Color: "Yellow"},
 }
 
+// Create configuration for sql Server
 // Create Sql Server Configuration (Update credentials accordingly)
 const (
 	server   = "localhost"
