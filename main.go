@@ -2,8 +2,11 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
+	"log"
 	"net/http"
 
+	_ "github.com/denisenkom/go-mssqldb"
 	"github.com/gin-gonic/gin"
 )
 
@@ -55,6 +58,22 @@ const (
 
 var db *sql.DB
 
+// funct initialize the database connection
+func initDb() {
+	connString := fmt.Sprint("server=", server, ";user id=", user, ";password=", password, ";port=", port, ";database=", database)
+	var err error
+	db, err = sql.Open("mssql", connString)
+	if err != nil {
+		log.Fatal("Đã xảy ra lỗi khi tạo kết nối", err)
+	}
+
+	err = db.Ping()
+	if err != nil {
+		log.Fatal("Không thể kết nối tới database", err)
+	}
+	fmt.Println("Kết nối với database thành công")
+}
+
 // get full list of albums
 func getAlbums(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, albums)
@@ -76,8 +95,30 @@ func addAnimal(c *gin.Context) {
 	animals = append(animals, newAnimal)
 	c.IndentedJSON(http.StatusCreated, newAnimal)
 }
+
+//	func getUser(c *gin.Context) {
+//		rows
+//	}
 func main() {
+	initDb()
 	r := gin.Default()
+	// API to check DB connection
+	r.GET("/check-db", func(ctx *gin.Context) {
+		if db == nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"Kết nối database thất bại": "Database object is nil",
+			})
+			return
+		}
+		err := db.Ping()
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"Kết nối database thất bại": err.Error(),
+			})
+			return
+		}
+		ctx.JSON(http.StatusOK, gin.H{"Kết nối database thành công:": fmt.Sprintf("Database: %s", database)})
+	})
 	r.GET("/getAlbums", getAlbums)
 	r.GET("/getAnimals", getAnimals)
 	r.POST("/addAnimal", addAnimal)
