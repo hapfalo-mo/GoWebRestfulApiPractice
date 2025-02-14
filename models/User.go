@@ -6,3 +6,5 @@ type User struct {
 	RoleId   int8   `json:"roleid"`
 	Password string `json:"password"`
 }
+
+// hello
