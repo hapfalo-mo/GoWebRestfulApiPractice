@@ -142,7 +142,7 @@ func getUserByUserName(c *gin.Context) {
 	c.JSON(http.StatusOK, userResult)
 }
 
-// hahahahhaha
+// aaaaaaaaaaa
 func main() {
 	initDb()
 	r := gin.Default()
