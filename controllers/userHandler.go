@@ -5,6 +5,7 @@ import (
 	"my-gin-app/db"
 	"my-gin-app/models"
 	"net/http"
+	"regexp"
 
 	"github.com/gin-gonic/gin"
 )
@@ -68,8 +69,20 @@ func InsertUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"Đã có lỗi xảy ra": err.Error()})
 		return
 	}
-	if checkDuplicate(user.UserEmail) {
+	if !checkDuplicate(user.UserEmail) {
 		c.JSON(http.StatusConflict, gin.H{"error": "Email is already exist"})
+		return
+	}
+	if !checkUsername(user.Username) {
+		c.JSON(http.StatusConflict, gin.H{"error": "Username have at maximum 10 characters"})
+		return
+	}
+	if !checkEmail(user.UserEmail) {
+		c.JSON(http.StatusConflict, gin.H{"error": "Email is not valid"})
+		return
+	}
+	if !checkPhoneNumber(user.UserPhoneNumber) {
+		c.JSON(http.StatusConflict, gin.H{"error": "Phone number is not valid"})
 		return
 	}
 	_, err = db.DB.Exec("INSERT INTO user (user_name, user_email, user_phonenumer) VALUES (?, ?, ?)", user.Username, user.UserEmail, user.UserPhoneNumber)
@@ -115,6 +128,22 @@ func UpdateUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid data"})
 		return
 	}
+	if !checkDuplicate(userUpdate.UserEmail) {
+		c.JSON(http.StatusConflict, gin.H{"error": "Email is already exist"})
+		return
+	}
+	if !checkUsername(userUpdate.Username) {
+		c.JSON(http.StatusConflict, gin.H{"error": "Username have at maximum 10 characters"})
+		return
+	}
+	if !checkEmail(userUpdate.UserEmail) {
+		c.JSON(http.StatusConflict, gin.H{"error": "Email is not valid"})
+		return
+	}
+	if !checkPhoneNumber(userUpdate.UserPhoneNumber) {
+		c.JSON(http.StatusConflict, gin.H{"error": "Phone number is not valid"})
+		return
+	}
 	_, err2 := db.DB.Exec("UPDATE user SET user_name = ?, user_email = ?, user_phonenumer = ? WHERE user_id = ?", userUpdate.Username, userUpdate.UserEmail, userUpdate.UserPhoneNumber, id)
 	if err2 != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error processing user data"})
@@ -123,6 +152,7 @@ func UpdateUser(c *gin.Context) {
 		"message": "User updated successfully"})
 }
 
+// Internal Function
 // Function to check duplicate email in database
 func checkDuplicate(email string) bool {
 	_, err := db.DB.Query("SELECT * FROM user WHERE user_email = ?", email)
@@ -131,4 +161,34 @@ func checkDuplicate(email string) bool {
 	} else {
 		return true
 	}
+}
+
+// check username have at maximum 10 characters
+func checkUsername(username string) bool {
+	if len(username) > 10 {
+		return false
+	} else {
+		return true
+	}
+}
+
+// check email is vald
+func checkEmail(email string) bool {
+	emailRegex := regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`)
+	isValid := emailRegex.MatchString(email)
+	return isValid
+}
+
+// Valid userphone number
+func checkPhoneNumber(phoneNumber string) bool {
+	if len(phoneNumber) < 10 || len(phoneNumber) > 11 {
+		return false
+	} else {
+		if condition := regexp.MustCompile(`^0[0-9]{9,10}$`); condition.MatchString(phoneNumber) {
+			return true
+		} else {
+			return false
+		}
+	}
+
 }
