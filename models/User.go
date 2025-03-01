@@ -8,6 +8,5 @@ type User struct {
 	UserCreatedAt   string  `json:"user_created_at"`
 	UserUpdatedAt   string  `json:"user_updated_at"`
 	UserDeletedAt   *string `json:"user_deleted_at"`
+	OrderCount      int     `json:"order_count"`
 }
-
-// hello

@@ -1,0 +1,39 @@
+definitions:
+  models.User:
+    properties:
+      user_created_at:
+        type: string
+      user_deleted_at:
+        type: string
+      user_email:
+        type: string
+      user_id:
+        type: integer
+      user_phone_number:
+        type: string
+      user_updated_at:
+        type: string
+      username:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/v1/users/getAllUser:
+    get:
+      consumes:
+      - application/json
+      description: Fetch all user records from the database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.User'
+            type: array
+      summary: Get all users
+      tags:
+      - users
+swagger: "2.0"
