@@ -11,7 +11,7 @@ func SetUserRoutes(router *gin.Engine) {
 	{
 		users := v1.Group("/users")
 		{
-			users.GET("/getAllUser", controllers.PagingnationUserList)
+			users.GET("/getAllUser", controllers.GetAllUser)
 			users.GET("/getUserByID/:user_id", controllers.GetUserByID)
 			users.POST("/createUser", controllers.InsertUser)
 			users.DELETE("/deleteUser/:user_id", controllers.DeleteUser)

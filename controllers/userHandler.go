@@ -21,14 +21,26 @@ func Login(c *gin.Context) {
 	err := c.ShouldBindJSON(&loginRequest)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"Message": "Cannot bind JSON"})
+		defer c.Request.Body.Close()
+		return
+	}
+	// Check email
+	if !checkEmail(loginRequest.UserEmail) {
+		c.JSON(http.StatusBadRequest, gin.H{"Message": "Email is not valid"})
+		return
+	}
+	// Check password
+	if !checkPhoneNumber(loginRequest.Password) {
+		c.JSON(http.StatusBadRequest, gin.H{"Message": "Password is not valid"})
+		return
 	}
 	var user models.User
 	err = db.DB.QueryRow("SELECT * FROM user WHERE user_email = ? AND user_phonenumer = ?", loginRequest.UserEmail, loginRequest.Password).Scan(&user.UserID, &user.Username, &user.UserEmail, &user.UserPhoneNumber, &user.UserCreatedAt, &user.UserUpdatedAt, &user.UserDeletedAt, &user.OrderCount)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"Message": "Username or Password is incorrect!"})
-
+		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"Message": "Login successully"})
+	c.JSON(http.StatusOK, user)
 }
 func GetAllUser(c *gin.Context) {
 	rows, err := db.DB.Query("SELECT * FROM user WHERE user_deletedAt IS NULL")
