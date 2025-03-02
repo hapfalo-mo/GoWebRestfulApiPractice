@@ -42,6 +42,8 @@ func Login(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, user)
 }
+
+// Get All Users
 func GetAllUser(c *gin.Context) {
 	rows, err := db.DB.Query("SELECT * FROM user WHERE user_deletedAt IS NULL")
 	if err != nil {
