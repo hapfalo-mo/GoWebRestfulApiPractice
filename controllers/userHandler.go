@@ -34,8 +34,13 @@ func Login(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"Message": "Password is not valid"})
 		return
 	}
+	// Check account is block or unblock
+	if !checkBlockAccount(loginRequest.UserEmail) {
+		c.JSON(http.StatusBadRequest, gin.H{"Message": "Account is blocked"})
+		return
+	}
 	var user models.User
-	err = db.DB.QueryRow("SELECT * FROM user WHERE user_email = ? AND user_phonenumer = ?", loginRequest.UserEmail, loginRequest.Password).Scan(&user.UserID, &user.Username, &user.UserEmail, &user.UserPhoneNumber, &user.UserCreatedAt, &user.UserUpdatedAt, &user.UserDeletedAt, &user.OrderCount)
+	err = db.DB.QueryRow("SELECT * FROM user WHERE user_email = ? AND user_phonenumer = ? ", loginRequest.UserEmail, loginRequest.Password).Scan(&user.UserID, &user.Username, &user.UserEmail, &user.UserPhoneNumber, &user.UserCreatedAt, &user.UserUpdatedAt, &user.UserDeletedAt, &user.OrderCount)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"Message": "Username or Password is incorrect!"})
 		return
@@ -334,6 +339,16 @@ func checkIdExist(id string) bool {
 // Check duplicate phonenumber
 func checkDuplicatePhoneNumber(phone string) bool {
 	_, err := db.DB.Query("SELECT * FROM user WHERE user_phonenumer = ?", phone)
+	if err != nil {
+		return false
+	} else {
+		return true
+	}
+}
+
+// Check account is block or unblock
+func checkBlockAccount(email string) bool {
+	_, err := db.DB.Query("SELECT * FROM user WHERE user_email = ? AND user_deletedAt IS NOT NULL", email)
 	if err != nil {
 		return false
 	} else {
